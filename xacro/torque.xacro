@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:macro name="link_torque" params="motor_name child_link *origin">
+  <gazebo reference="${motor_name}">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+
+ <gazebo>
+    <plugin name="${motor_name}" filename="libgazebo_ros_link_torque.so">
+        <command_topic>torque</command_topic>
+        <torque_link>${child_link}</torque_link>
+        <axis>z</axis>
+     </plugin>
+  </gazebo>
+</xacro:macro>
+
+</robot>

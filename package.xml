@@ -1,37 +1,37 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>gazebo_ros_motors</name>
-  <version>1.1.1</version>
-  <description>
-    Gazebo-ROS plugin for electro-mechanically accurate DC motor simulation.
-  </description>
+  <version>0.1.0</version>
+  <description>Gazebo ROS2 motor plugins package</description>
 
-  <maintainer email="marton@neorobot.hu">nilseuropa</maintainer>
-  <author>Marton Juhasz, Gergely Gyebroszki</author>
+  <maintainer email="marton@nowtech.hu">nilseuropa</maintainer>
+  <license>GNU</license>
 
-  <license>NO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>gazebo_dev</build_depend>
-  <exec_depend>gazebo_dev</exec_depend>
-
+  <depend>gazebo_dev</depend>
   <depend>gazebo_msgs</depend>
+  <depend>gazebo_ros</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>rclcpp_components</depend>
+  <depend>angles</depend>
+  <depend>std_msgs</depend>
+  <depend>rosconsole</depend>
+  <depend>rosgraph_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>geometry_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>std_srvs</depend>
-  <depend>roscpp</depend>
-  <depend>rospy</depend>
-  <depend>nodelet</depend>
-  <depend>angles</depend>
+  <depend>nav_msgs</depend>
   <depend>urdf</depend>
   <depend>tf</depend>
   <depend>tf2_ros</depend>
-  <depend>dynamic_reconfigure</depend>
-  <depend>rosgraph_msgs</depend>
-  <depend>rosconsole</depend>
-  <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
-  <depend>diagnostic_updater</depend>
-  <depend>std_msgs</depend>
 
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

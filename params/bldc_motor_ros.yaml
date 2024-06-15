@@ -1,0 +1,57 @@
+/left_motor:
+  ros__parameters:
+    supply_voltage: 48.0                # V
+    electric_resistance: 0.54           # stator phase winding resistance (Ohms)
+    self_inductance: 0.0005             # Henry
+    mutual_inductance: 0.0              # Henry
+    stator_inductance_fluctuation: 0.0  # Henry
+    pole_pairs: 7.0                       # number of motor pole pairs (P/2)
+    torque_constant: 0.133              # Nm/A
+    rotor_inertia: 0.000102             # kg * m^2
+#    friction_coefficient: 0.0000005
+    encoder_pulses_per_revolution:  111.0 # pulse per revolution
+    standard_deviation_of_noise: 0.05   # standard deviaton of normal distribution that generates noise of published velocity
+    command_topic:    'actual_target'
+    velocity_topic:   'actual_speed'
+    rotorvelocity_topic:  'rotorvelocity'
+    encoder_topic:    'encoder'
+    current_topic:    'actual_current'
+    torque_topic:     'actual_torque'
+
+    current_offset: 0.2 # Amper, that is always added to generated current
+    friction_coefficient: 0.0000005
+    damping_coefficient: 0.19
+
+    pi_proportional_gain_for_velocity:  0.2
+    pi_integral_gain_for_velocity:      0.5
+    pi_proportional_gain_for_current:   0.6
+    pi_integral_gain_for_current:       0.04
+
+/right_motor:
+  ros__parameters:
+    supply_voltage: 48.0                # V
+    electric_resistance: 0.54           # stator phase winding resistance (Ohms)
+    self_inductance: 0.0005             # Henry
+    mutual_inductance: 0.0              # Henry
+    stator_inductance_fluctuation: 0.0  # Henry
+    pole_pairs: 7.0                       # number of motor pole pairs (P/2)
+    torque_constant: 0.133              # Nm/A
+    rotor_inertia: 0.000102             # kg * m^2
+#    friction_coefficient: 0.0000005
+    encoder_pulses_per_revolution:  111.0 # pulse per revolution
+    standard_deviation_of_noise: 0.05   # standard deviaton of normal distribution that generates noise of published velocity
+    command_topic:    'actual_target'
+    velocity_topic:   'actual_speed'
+    rotorvelocity_topic:  'rotorvelocity'
+    encoder_topic:    'encoder'
+    current_topic:    'actual_current'
+    torque_topic:     'actual_torque'
+
+    current_offset: 0.2 # Amper, that is always added to generated current
+    friction_coefficient: 0.0000005
+    damping_coefficient: 0.19
+
+    pi_proportional_gain_for_velocity:  0.2
+    pi_integral_gain_for_velocity:      0.5
+    pi_proportional_gain_for_current:   0.6
+    pi_integral_gain_for_current:       0.04

@@ -1,0 +1,14 @@
+/one_motor:
+  ros__parameters:
+    armature_damping_ratio: 0.0001
+    electric_inductance: 0.001
+    electric_resistance: 13.8
+    electromotive_force_constant: 0.03
+    encoder_ppr: 111.0
+    gear_ratio: 72.0
+    moment_of_inertia: 0.001
+    motor_nominal_voltage: 24.0
+    update_rate: 100.0
+    use_sim_time: true
+    velocity_noise: 0.0
+

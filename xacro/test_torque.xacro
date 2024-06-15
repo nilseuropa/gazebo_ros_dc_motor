@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<robot name="motor" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <material name="Orange">
+    <color rgba="${255/255} ${108/255} ${10/255} 1.0"/>
+  </material>
+
+  <xacro:property name="wheel_mass"         value="2.000"/>
+  <xacro:property name="wheel_radius"       value="0.300"/>
+  <xacro:property name="wheel_thickness"    value="0.020"/>
+  <xacro:property name="wheel_deadplay"   value="0.0"/> <!-- deadplay of wheels in radian -->
+
+  <xacro:include filename="$(find gazebo_ros_motors)/xacro/inertia_calc.xacro"/>
+  <xacro:include filename="$(find gazebo_ros_motors)/xacro/torque.xacro"/>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.2 0.2 1"/>
+      </geometry>
+      <material name="Orange" />
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.2 0.2 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0.2 0.2 1"/>
+      </geometry>
+      <mass value="1000"/>
+      <xacro:box_inertia m="1000" x="0.2" y="0.2" z="1"/>
+    </inertial>
+  </link>
+
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel_axle"/>
+    <origin rpy="${-pi/2} 0 0" xyz="-0.135 0.22 -0.16"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="left_wheel_axle">
+    <collision>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0 0 1"/>
+      </geometry>
+      <mass value="1"/>
+      <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+
+  <joint name="left_wheel_deadplay" type="revolute">
+    <parent link="left_wheel_axle" />
+    <child link="left_wheel" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-wheel_deadplay/2}" upper="${wheel_deadplay/2}"  effort="100000" velocity="1000000" />
+  </joint>
+
+  <link name="left_wheel">
+    <visual>
+      <origin xyz="0.3013 -0.3013 -0.54" rpy="${pi/2} ${-pi/2} ${-pi/2}"/>
+      <geometry>
+        <mesh filename="file://$(find nitrum)/meshes/nitrum_handrim.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+      </geometry>
+      <surface>
+      </surface>
+    </collision>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <xacro:cylinder_inertia m="4" r="${wheel_radius}" h="${wheel_thickness}"/>
+    </inertial>
+  </link>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel_axle"/>
+    <origin rpy="${-pi/2} 0 0" xyz="-0.135 -0.22 -0.16"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="right_wheel_axle">
+    <collision>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0 0 1"/>
+      </geometry>
+      <mass value="1"/>
+      <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+
+  <joint name="right_wheel_deadplay" type="revolute">
+    <parent link="right_wheel_axle" />
+    <child link="right_wheel" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-wheel_deadplay/2}" upper="${wheel_deadplay/2}"  effort="100000" velocity="1000000" />
+  </joint>
+
+  <link name="right_wheel">
+    <visual>
+      <origin xyz="0.3013 0.3013 0.54" rpy="${pi/2} ${pi/2} ${-pi/2}"/>
+      <geometry>
+        <mesh filename="file://$(find nitrum)/meshes/nitrum_handrim.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.005"/>
+      <geometry>
+        <cylinder length="${wheel_thickness}" radius="${wheel_radius}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <xacro:cylinder_inertia m="4" r="${wheel_radius}" h="${wheel_thickness}"/>
+    </inertial>
+  </link>
+
+  <xacro:link_torque motor_name="left_wheel" child_link="left_wheel">
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </xacro:link_torque>
+
+  <xacro:link_torque motor_name="right_wheel" child_link="right_wheel">
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </xacro:link_torque>
+
+</robot>
+

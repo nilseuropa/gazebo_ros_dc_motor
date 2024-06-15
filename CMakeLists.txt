@@ -1,127 +1,70 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(gazebo_ros_motors)
 
-find_package(catkin REQUIRED COMPONENTS
-  gazebo_dev
-  message_generation
-  gazebo_msgs
-  roscpp
-  rospy
-  nodelet
-  angles
-  std_srvs
-  geometry_msgs
-  sensor_msgs
-  nav_msgs
-  urdf
-  tf
-  tf2_ros
-  dynamic_reconfigure
-  rosgraph_msgs
-  rosconsole
-  diagnostic_updater
-  std_msgs
-)
-
-include (FindPkgConfig)
-if (PKG_CONFIG_FOUND)
-  pkg_check_modules(XML libxml-2.0)
-  pkg_check_modules(OGRE OGRE)
-  pkg_check_modules(OGRE-Terrain OGRE-Terrain)
-  pkg_check_modules(OGRE-Paging OGRE-Paging)
-else()
-  message(FATAL_ERROR "pkg-config is required; please install it")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS thread)
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(gazebo_dev REQUIRED)
+find_package(gazebo_msgs REQUIRED)
+find_package(gazebo_ros REQUIRED)
+find_package(gazebo_plugins REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(angles REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(urdf REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-execute_process(COMMAND
-  pkg-config --variable=plugindir OGRE
-  OUTPUT_VARIABLE OGRE_PLUGIN_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+add_library(gazebo_ros_dc_motor SHARED src/gazebo_ros_dc_motor.cpp include/gazebo_ros_motors/backlash.h src/backlash.cpp)
+target_compile_features(gazebo_ros_dc_motor PUBLIC cxx_std_17)
+target_include_directories(gazebo_ros_dc_motor PRIVATE include)
+ament_target_dependencies(gazebo_ros_dc_motor gazebo_dev gazebo_ros rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs)
 
-include_directories(include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${OGRE_INCLUDE_DIRS}
-  ${OGRE-Terrain_INCLUDE_DIRS}
-  ${OGRE-Paging_INCLUDE_DIRS}
-)
+add_library(gazebo_ros_bldc_motor SHARED src/gazebo_ros_bldc_motor.cpp src/bldcmotor_foc.cpp)
+target_compile_features(gazebo_ros_bldc_motor PUBLIC cxx_std_17)
+target_include_directories(gazebo_ros_bldc_motor PRIVATE include)
+target_link_libraries(gazebo_ros_bldc_motor)
+ament_target_dependencies(gazebo_ros_bldc_motor gazebo_dev gazebo_ros rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs)
 
-link_directories(
-  ${catkin_LIBRARY_DIRS}
-  ${OGRE_LIBRARY_DIRS}
-  ${OGRE-Terrain_LIBRARY_DIRS}
-  ${OGRE-Paging_LIBRARY_DIRS}
-)
+add_library(gazebo_ros_link_torque SHARED src/gazebo_ros_link_torque.cpp)
+target_compile_features(gazebo_ros_link_torque PUBLIC cxx_std_17)
+target_include_directories(gazebo_ros_link_torque PRIVATE include)
+ament_target_dependencies(gazebo_ros_link_torque gazebo_dev gazebo_ros rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs)
 
-generate_dynamic_reconfigure_options(
-  cfg/motorModel.cfg
-)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES
-  CATKIN_DEPENDS
-  message_runtime
-  gazebo_msgs
-  roscpp
-  rospy
-  nodelet
-  angles
-  std_srvs
-  geometry_msgs
-  sensor_msgs
-  urdf
-  tf
-  tf2_ros
-  dynamic_reconfigure
-  rosgraph_msgs
-  rosconsole
-  std_msgs
-)
-
-###########
-## Build ##
-###########
-
-add_library(gazebo_ros_dc_motor src/gazebo_ros_dc_motor.cpp)
-target_link_libraries(gazebo_ros_dc_motor gazebo_ros_utils ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-add_dependencies(gazebo_ros_dc_motor ${PROJECT_NAME}_gencfg)
-
-add_library(gazebo_ros_joint_motor src/gazebo_ros_joint_motor.cpp)
-target_link_libraries(gazebo_ros_joint_motor gazebo_ros_utils ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-
-##########
-## Test ##
-##########
-
-# if(CATKIN_ENABLE_TESTING)
-# find_package(rostest REQUIRED)
-#
-# add_rostest_gtest(test_motor_model test/test_motor_model.test src/test/test_motor_model.cpp)
-# target_link_libraries(test_motor_model ${catkin_LIBRARIES})
-#
-# endif()
-
-#############
-## Install ##
-#############
 
 install(TARGETS
-  gazebo_ros_dc_motor
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  )
+        gazebo_ros_dc_motor
+        gazebo_ros_bldc_motor
+        gazebo_ros_link_torque
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+        )
 
-install(TARGETS
-  gazebo_ros_joint_motor
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  )
-
-install(DIRECTORY include/
-   DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
+install(
+        DIRECTORY params xacro
+        DESTINATION share/${PROJECT_NAME}
 )
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_package()

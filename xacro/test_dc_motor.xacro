@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<robot name="motor" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find gazebo_ros_motors)/xacro/inertia_calc.xacro"/>
+  <xacro:include filename="$(find gazebo_ros_motors)/xacro/motor.xacro"/>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base_link"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+      <visual>
+        <geometry>
+          <box size="0.5 0.5 0.005"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.5 0.5 0.005"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <geometry>
+          <box size="0.5 0.5 0.005"/>
+        </geometry>
+        <mass value="500"/>
+        <xacro:box_inertia m="500" x="0.5" y="0.5" z="0.05"/>
+      </inertial>
+  </link>
+
+  <link name="one_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <mass value="100"/>
+      <xacro:box_inertia m="100" x="0.5" y="0.5" z="0.05"/>
+    </inertial>
+  </link>
+
+  <joint name="one_joint" type="continuous">
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="one_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.005" friction="0.1"/>
+  </joint>
+
+  <xacro:dc_motor motor_name="one_motor" motor_joint="one_joint" child_link="one_link">
+    <xacro:property name="params_yaml" value="$(find gazebo_ros_motors)/params/dc_motor.yaml"/>
+  </xacro:dc_motor>
+
+</robot>

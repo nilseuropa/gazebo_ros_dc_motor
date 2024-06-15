@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ODE joint motor macro -->
+<xacro:macro name="joint_motor" params="motor_name parent_link child_link *origin">
+
+  <!-- <xacro:property name="params_yaml"  value="$(find gazebo_ros_motors)/params/joint_motor.yaml"/> -->
+  <xacro:property name="motor_param"  value="${load_yaml(params_yaml)}"/>
+
+  <joint name="${motor_name}" type="continuous">
+      <parent link="${parent_link}"/>
+      <child link="${child_link}"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <dynamics damping="${motor_param['joint_damping']}" friction="${motor_param['joint_friction']}"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="motor_plugin" filename="libgazebo_ros_joint_motor.so">
+      <command_topic>${motor_name}/command</command_topic>
+      <velocity_topic>${motor_name}/velocity</velocity_topic>
+      <encoder_topic>${motor_name}/encoder</encoder_topic>
+      <motor_shaft_joint>${motor_name}</motor_shaft_joint>
+      <motor_wrench_frame>${child_link}</motor_wrench_frame>
+      <ode_joint_motor_fmax>${motor_param['ode_joint_motor_fmax']}</ode_joint_motor_fmax>
+      <ode_joint_fudge_factor>${motor_param['ode_joint_fudge_factor']}</ode_joint_fudge_factor>
+      <publish_velocity>${motor_param['publish_velocity']}</publish_velocity>
+      <publish_encoder>${motor_param['publish_encoder']}</publish_encoder>
+      <publish_motor_joint_state>${motor_param['publish_motor_joint_state']}</publish_motor_joint_state>
+      <update_rate>${motor_param['update_rate']}</update_rate>
+      <encoder_ppr>${motor_param['encoder_ppr']}</encoder_ppr>
+      <encoder_to_shaft_ratio>${motor_param['encoder_to_shaft_ratio']}</encoder_to_shaft_ratio>
+      <rosDebugLevel>Debug</rosDebugLevel>
+    </plugin>
+  </gazebo>
+
+</xacro:macro>
+
+
+<!-- EMDC motor macro -->
+<xacro:macro name="dc_motor" params="motor_name parent_link child_link *origin">
+  <xacro:property name="motor_param" value="${load_yaml(params_yaml)}"/>
+  <joint name="${motor_name}" type="continuous">
+      <parent link="${parent_link}"/>
+      <child link="${child_link}"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <dynamics damping="${motor_param['joint_damping']}" friction="${motor_param['joint_friction']}"/>
+  </joint>
+
+  <gazebo reference="${motor_name}">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+<!--
+  <gazebo>
+    <plugin name="${motor_name}_ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+       <updateRate>100.0</updateRate>
+       <topicName>${motor_name}/force_sensor</topicName>
+       <jointName>${motor_name}</jointName>
+     </plugin>
+  </gazebo>
+-->
+
+  <gazebo>
+    <plugin name="${motor_name}" filename="libgazebo_ros_dc_motor.so">
+      <motor_shaft_joint>${motor_name}</motor_shaft_joint>
+      <motor_wrench_frame>${child_link}</motor_wrench_frame>
+
+      <!-- These parameters can not be changed via ros2 param
+      <parameter type="string" name="command_topic">${motor_name}/voltage_norm</parameter>
+      <parameter type="string" name="velocity_topic">${motor_name}/velocity</parameter>
+      <parameter type="string" name="encoder_topic">${motor_name}/encoder</parameter>
+      <parameter type="string" name="current_topic">${motor_name}/current</parameter>
+      <parameter type="string" name="load_topic">${motor_name}/load</parameter>
+      <parameter type="string" name="supply_topic">${motor_name}/supply_voltage</parameter> -->
+
+      <!-- These parameters can be changed via ros2 param -->
+      <parameter type="bool" name="publish_encoder">${motor_param['publish_encoder']}</parameter>
+      <parameter type="bool" name="publish_velocity">${motor_param['publish_velocity']}</parameter>
+      <parameter type="bool" name="publish_current">${motor_param['publish_current']}</parameter>
+      <parameter type="bool" name="publish_motor_joint_state">${motor_param['publish_motor_joint_state']}</parameter>
+      <parameter type="bool" name="publish_load">${motor_param['publish_load']}</parameter>
+
+      <parameter type="double" name="update_rate">${motor_param['update_rate']}</parameter>
+      <parameter type="double" name="motor_nominal_voltage">${motor_param['motor_nominal_voltage']}</parameter>
+      <parameter type="double" name="moment_of_inertia">${motor_param['moment_of_inertia']}</parameter>
+      <parameter type="double" name="armature_damping_ratio">${motor_param['armature_damping_ratio']}</parameter>
+      <parameter type="double" name="electromotive_force_constant">${motor_param['electromotive_force_constant']}</parameter>
+      <parameter type="double" name="electric_resistance">${motor_param['electric_resistance']}</parameter>
+      <parameter type="double" name="electric_inductance">${motor_param['electric_inductance']}</parameter>
+      <parameter type="double" name="gear_ratio">${motor_param['gear_ratio']}</parameter>
+      <parameter type="double" name="encoder_ppr">${motor_param['encoder_ppr']}</parameter>
+      <parameter type="double" name="velocity_noise">${motor_param['velocity_noise']}</parameter>
+      <parameter type="double" name="kp_v">${motor_param['kp_v']}</parameter>
+      <parameter type="double" name="ki_v">${motor_param['ki_v']}</parameter>
+
+    </plugin>
+  </gazebo>
+</xacro:macro>
+
+<!-- EMDC motor macro -->
+<xacro:macro name="dc_motor" params="motor_name motor_joint child_link">
+  <xacro:property name="motor_param" value="${load_yaml(params_yaml)}"/>
+
+  <gazebo reference="${motor_name}">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+<!--
+  <gazebo>
+    <plugin name="${motor_name}_ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+       <updateRate>100.0</updateRate>
+       <topicName>${motor_name}/force_sensor</topicName>
+       <jointName>${motor_name}</jointName>
+     </plugin>
+  </gazebo>
+-->
+
+  <gazebo>
+    <plugin name="${motor_name}" filename="libgazebo_ros_dc_motor.so">
+      <motor_shaft_joint>${motor_joint}</motor_shaft_joint>
+      <motor_wrench_frame>${child_link}</motor_wrench_frame>
+
+      <!-- These parameters can not be changed via ros2 param
+      <parameter type="string" name="command_topic">${motor_name}/voltage_norm</parameter>
+      <parameter type="string" name="velocity_topic">${motor_name}/velocity</parameter>
+      <parameter type="string" name="encoder_topic">${motor_name}/encoder</parameter>
+      <parameter type="string" name="current_topic">${motor_name}/current</parameter>
+      <parameter type="string" name="load_topic">${motor_name}/load</parameter>
+      <parameter type="string" name="supply_topic">${motor_name}/supply_voltage</parameter>    -->
+
+      <!-- These parameters can be changed via ros2 param -->
+      <parameter type="bool" name="publish_encoder">${motor_param['publish_encoder']}</parameter>
+      <parameter type="bool" name="publish_velocity">${motor_param['publish_velocity']}</parameter>
+      <parameter type="bool" name="publish_current">${motor_param['publish_current']}</parameter>
+      <parameter type="bool" name="publish_motor_joint_state">${motor_param['publish_motor_joint_state']}</parameter>
+      <parameter type="bool" name="publish_load">${motor_param['publish_load']}</parameter>
+
+      <parameter type="double" name="update_rate">${motor_param['update_rate']}</parameter>
+      <parameter type="double" name="motor_nominal_voltage">${motor_param['motor_nominal_voltage']}</parameter>
+      <parameter type="double" name="moment_of_inertia">${motor_param['moment_of_inertia']}</parameter>
+      <parameter type="double" name="armature_damping_ratio">${motor_param['armature_damping_ratio']}</parameter>
+      <parameter type="double" name="electromotive_force_constant">${motor_param['electromotive_force_constant']}</parameter>
+      <parameter type="double" name="electric_resistance">${motor_param['electric_resistance']}</parameter>
+      <parameter type="double" name="electric_inductance">${motor_param['electric_inductance']}</parameter>
+      <parameter type="double" name="gear_ratio">${motor_param['gear_ratio']}</parameter>
+      <parameter type="double" name="encoder_ppr">${motor_param['encoder_ppr']}</parameter>
+      <parameter type="double" name="velocity_noise">${motor_param['velocity_noise']}</parameter>
+      <parameter type="double" name="kp_v">${motor_param['kp_v']}</parameter>
+      <parameter type="double" name="ki_v">${motor_param['ki_v']}</parameter>
+    </plugin>
+  </gazebo>
+</xacro:macro>
+
+<!-- BLDC motor macro that generates motor shaft, joint of deadplay   -->
+<xacro:macro name="bldc_motor" params="motor_name parent_link child_link *origin">
+  <xacro:property name="motor_param" value="${load_yaml(params_yaml)}"/>
+
+  <link name="${motor_name}_rotor">
+    <!-- This is the rotor of the simulated motor.  Inertia will be set by the plugin. -->
+    <collision>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0 0 1"/>
+      </geometry>
+      <mass value="1"/>
+      <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+
+  <joint name="${motor_name}" type="continuous">
+    <parent link="${parent_link}"/>
+    <child link="${motor_name}_rotor"/>
+    <xacro:insert_block name="origin"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="${motor_param['joint_damping']}" friction="${motor_param['joint_friction']}"/>
+  </joint>
+
+  <joint name="${motor_name}_rotor_to_load" type="revolute">
+    <parent link="${motor_name}_rotor" />
+    <child link="${child_link}" />
+    <axis xyz="0 0 1" />
+    <limit lower="${-motor_param['deadplay']/2}" upper="${motor_param['deadplay']/2}"  effort="100000" velocity="1000000" />
+    <dynamics friction ="0" damping="0"/>
+  </joint>
+
+  <gazebo reference="${motor_name}">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="${motor_name}" filename="libgazebo_ros_bldc_motor.so">
+      <rotated_link>${child_link}</rotated_link>
+
+      <!-- These parameters can be changed via ros2 param -->
+      <parameter type="bool" name="publish_encoder">${motor_param['publish_encoder']}</parameter>
+      <parameter type="bool" name="publish_velocity">${motor_param['publish_velocity']}</parameter>
+      <parameter type="bool" name="publish_rotorvelocity">${motor_param['publish_rotorvelocity']}</parameter>
+      <parameter type="bool" name="publish_current">${motor_param['publish_current']}</parameter>
+      <parameter type="bool" name="publish_motor_joint_state">${motor_param['publish_motor_joint_state']}</parameter>
+      <parameter type="bool" name="publish_torque">${motor_param['publish_torque']}</parameter>
+
+      <parameter type="double" name="update_rate">${motor_param['update_rate']}</parameter>
+      <parameter type="double" name="supply_voltage">${motor_param['supply_voltage']}</parameter>
+      <parameter type="double" name="electric_resistance">${motor_param['electric_resistance']}</parameter>
+      <parameter type="double" name="self_inductance">${motor_param['self_inductance']}</parameter>
+      <parameter type="double" name="stator_inductance_fluctuation">${motor_param['stator_inductance_fluctuation']}</parameter>
+      <parameter type="double" name="pole_pairs">${motor_param['pole_pairs']}</parameter>
+      <parameter type="double" name="torque_constant">${motor_param['torque_constant']}</parameter>
+      <parameter type="double" name="friction_coefficient">${motor_param['friction_coefficient']}</parameter>
+      <parameter type="double" name="encoder_pulses_per_revolution">${motor_param['encoder_pulses_per_revolution']}</parameter>
+      <parameter type="double" name="standard_deviation_of_velocity">${motor_param['standard_deviation_of_velocity']}</parameter>
+
+    </plugin>
+  </gazebo>
+
+</xacro:macro>
+
+<!-- BLDC motor macro -->
+<xacro:macro name="bldc_motor" params="motor_name motor_joint child_link">
+  <xacro:property name="motor_param" value="${load_yaml(params_yaml)}"/>
+
+  <gazebo reference="${motor_name}">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="${motor_name}" filename="libgazebo_ros_bldc_motor.so">
+      <motor_shaft_joint>${motor_joint}</motor_shaft_joint>
+      <rotated_link>${child_link}</rotated_link>
+
+      <!-- These parameters can be changed via ros2 param -->
+      <parameter type="bool" name="publish_encoder">${motor_param['publish_encoder']}</parameter>
+      <parameter type="bool" name="publish_velocity">${motor_param['publish_velocity']}</parameter>
+      <parameter type="bool" name="publish_rotorvelocity">${motor_param['publish_rotorvelocity']}</parameter>
+      <parameter type="bool" name="publish_current">${motor_param['publish_current']}</parameter>
+      <parameter type="bool" name="publish_motor_joint_state">${motor_param['publish_motor_joint_state']}</parameter>
+      <parameter type="bool" name="publish_torque">${motor_param['publish_torque']}</parameter>
+
+      <parameter type="double" name="update_rate">${motor_param['update_rate']}</parameter>
+      <parameter type="double" name="supply_voltage">${motor_param['supply_voltage']}</parameter>
+      <parameter type="double" name="electric_resistance">${motor_param['electric_resistance']}</parameter>
+      <parameter type="double" name="self_inductance">${motor_param['self_inductance']}</parameter>
+      <parameter type="double" name="stator_inductance_fluctuation">${motor_param['stator_inductance_fluctuation']}</parameter>
+      <parameter type="double" name="pole_pairs">${motor_param['pole_pairs']}</parameter>
+      <parameter type="double" name="torque_constant">${motor_param['torque_constant']}</parameter>
+      <parameter type="double" name="friction_coefficient">${motor_param['friction_coefficient']}</parameter>
+      <parameter type="double" name="encoder_pulses_per_revolution">${motor_param['encoder_pulses_per_revolution']}</parameter>
+      <parameter type="double" name="standard_deviation_of_velocity">${motor_param['standard_deviation_of_velocity']}</parameter>
+
+    </plugin>
+  </gazebo>
+
+</xacro:macro>
+
+</robot>

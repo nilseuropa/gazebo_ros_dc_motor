@@ -1,0 +1,29 @@
+publish_velocity            : true
+publish_rotorvelocity       : true
+publish_encoder             : true
+publish_current             : true
+publish_motor_joint_state   : true
+publish_torque                : true
+update_rate                 : 100.0
+deadplay                    : 0.261799  # deadplay of drive between the gearing box and load [rad]
+
+# motor model
+supply_voltage: 48.0                # V
+electric_resistance: 0.54           # stator phase winding resistance (Ohms)
+self_inductance: 0.0005             # Henry
+mutual_inductance: 0.0              # Henry
+stator_inductance_fluctuation: 0.0  # Henry
+pole_pairs: 7                       # number of motor pole pairs (P/2)
+torque_constant: 0.133              # Nm/A
+rotor_inertia: 0.000102             # kg * m^2
+
+# transmission
+friction_coefficient:  0.0000005    # (Nms / rad)
+
+gear_ratio                  : 72.0
+joint_damping               : 0.005
+joint_friction              : 0.01
+
+# shaft encoder
+encoder_pulses_per_revolution:  111 # pulse per revolution
+standard_deviation_of_velocity: 0.0 # standard deviaton of normal distribution that generates noise of published velocity
